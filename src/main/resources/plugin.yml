@@ -1,0 +1,9 @@
+name: MCServerPass
+version: '${version}'
+main: org.example.mcserverpass.mcserverpass.MCServerPass
+api-version: 1.19
+
+commands:
+  login:
+    description: Login using server password
+    usage: /<command> password
