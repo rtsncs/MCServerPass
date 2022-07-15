@@ -21,7 +21,7 @@ public class CommandLogin implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
             if (plugin.getPlayersLoggingIn().contains(player.getUniqueId())) {
-                if (String.join(" ", args).equals("simp gaming")) {
+                if (String.join(" ", args).equals(plugin.getConfig().getString("password"))) {
                     player.sendMessage(ChatColor.GREEN + "Logging in!");
                     plugin.getLogger().info("Player " + player.getName() + " logged in!");
                     plugin.getPlayersLoggingIn().remove(player.getUniqueId());

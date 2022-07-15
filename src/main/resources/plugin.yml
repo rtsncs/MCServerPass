@@ -5,5 +5,10 @@ api-version: 1.19
 
 commands:
   login:
+    aliases: l
     description: Login using server password
     usage: /<command> password
+  setpassword:
+    description: Set server password
+    usage: /<command> password
+    permission: op

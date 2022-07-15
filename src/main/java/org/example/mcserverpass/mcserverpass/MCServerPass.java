@@ -44,8 +44,15 @@ public final class MCServerPass extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        var config = getConfig();
+        config.addDefault("password", "password");
+        config.addDefault("logoutTimeout", 1200);
+        config.options().copyDefaults(true);
+        saveConfig();
+
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         Objects.requireNonNull(getCommand("login")).setExecutor(new CommandLogin(this));
+        Objects.requireNonNull(getCommand("setpassword")).setExecutor(new CommandSetPassword(this));
     }
 
     public Location getLocation(UUID player) {
@@ -88,6 +95,7 @@ public final class MCServerPass extends JavaPlugin {
     }
 
     public void savePlayerData(Player player) {
+        getLogger().info("Saving player data for: " + player.getName());
         var query = "MERGE INTO PLAYERS KEY(id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (var con = getDBConnection(); var statement = con.prepareStatement(query)) {
             statement.setObject(1, player.getUniqueId());

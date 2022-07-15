@@ -1,5 +1,7 @@
 package org.example.mcserverpass.mcserverpass;
 
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,22 +28,40 @@ public class PlayerListener implements Listener {
             plugin.savePlayerData(player);
 
         plugin.getPlayersLoggingIn().add(player.getUniqueId());
-        player.teleport(plugin.getServer().getWorlds().get(0).getSpawnLocation().add(0.0, 400.0, 0.0));
+        player.teleport(player.getLocation().add(0, 400, 0));
         player.setAllowFlight(true);
+        var last_pos = plugin.getLocation(player.getUniqueId());
+        if (last_pos != null)
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "Last position: " + last_pos.getBlockX() +
+                    ", " + last_pos.getBlockY() + ", " + last_pos.getBlockZ());
         player.sendMessage(ChatColor.LIGHT_PURPLE + "Login using the /login command!");
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         var player = event.getPlayer();
-        // TODO: keep the player logged in for some time after they leave
 
         plugin.getPlayersLoggingIn().remove(event.getPlayer().getUniqueId());
         if (!plugin.getPlayersLoggedIn().contains(player.getUniqueId()))
             return;
 
         plugin.savePlayerData(player);
-        plugin.getPlayersLoggedIn().remove(event.getPlayer().getUniqueId());
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline()) {
+                plugin.getPlayersLoggedIn().remove(player.getUniqueId());
+                plugin.getLogger().info("Logging out player " + player.getName());
+            }
+        }, plugin.getConfig().getLong("logoutTimeout"));
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerPostRespawnEvent event) {
+        var player = event.getPlayer();
+        plugin.savePlayerData(player);
+        if (plugin.getPlayersLoggingIn().contains(player.getUniqueId())) {
+            player.setAllowFlight(true);
+            player.teleport(player.getLocation().add(0, 400, 0));
+        }
     }
 
     @EventHandler
