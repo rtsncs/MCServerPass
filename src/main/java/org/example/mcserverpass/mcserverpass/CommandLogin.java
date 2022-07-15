@@ -13,7 +13,7 @@ import java.util.Objects;
 public class CommandLogin implements CommandExecutor {
     private final MCServerPass plugin;
 
-    CommandLogin(MCServerPass plugin) {
+    public CommandLogin(MCServerPass plugin) {
         this.plugin = plugin;
     }
 

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class CommandSetPassword implements CommandExecutor {
     private final MCServerPass plugin;
 
-    CommandSetPassword(MCServerPass plugin) {
+    public CommandSetPassword(MCServerPass plugin) {
         this.plugin = plugin;
     }
 

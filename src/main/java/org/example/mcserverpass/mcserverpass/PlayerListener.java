@@ -14,7 +14,7 @@ import org.bukkit.event.player.*;
 public class PlayerListener implements Listener {
     private final MCServerPass plugin;
 
-    PlayerListener(MCServerPass plugin) {
+    public PlayerListener(MCServerPass plugin) {
         this.plugin = plugin;
     }
 

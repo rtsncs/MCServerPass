@@ -8,21 +8,31 @@ import org.bukkit.util.Vector;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public final class MCServerPass extends JavaPlugin {
-    private final List<UUID> playersLoggingIn = new ArrayList<>();
-    private final List<UUID> playersLoggedIn = new ArrayList<>();
+    private final List<UUID> playersLoggingIn = new LinkedList<>();
+    private final List<UUID> playersLoggedIn = new LinkedList<>();
 
-    public MCServerPass() throws SQLException, ClassNotFoundException {
-        Class.forName("org.h2.Driver");
+    public MCServerPass() {
+        try {
+            Class.forName("org.h2.Driver");
+        } catch (ClassNotFoundException e) {
+            getLogger().severe("Error setting up the database!");
+            getServer().shutdown();
+            throw new RuntimeException(e);
+        }
         try (var con = getDBConnection(); var statement = con.createStatement()) {
             var query = "CREATE TABLE IF NOT EXISTS players (" +
                     "id UUID, world varchar, x float, y float, z float, pitch float, yaw float, vx float, vy float, vz float)";
             statement.executeUpdate(query);
+        } catch (SQLException e) {
+            getLogger().severe("Error setting up the database!");
+            getServer().shutdown();
+            throw new RuntimeException(e);
         }
     }
 
@@ -30,6 +40,8 @@ public final class MCServerPass extends JavaPlugin {
         try {
             return DriverManager.getConnection("jdbc:h2:file:./serverPass");
         } catch (SQLException e) {
+            getLogger().severe("Error getting database connection!");
+            getServer().shutdown();
             throw new RuntimeException(e);
         }
     }
@@ -72,7 +84,8 @@ public final class MCServerPass extends JavaPlugin {
             } else
                 return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            getLogger().severe("Error getting location for player " + player + ": " + e.getMessage());
+            return null;
         }
     }
 
@@ -90,7 +103,8 @@ public final class MCServerPass extends JavaPlugin {
             } else
                 return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            getLogger().severe("Error getting velocity for player " + player + ": " + e.getMessage());
+            return null;
         }
     }
 
@@ -113,7 +127,7 @@ public final class MCServerPass extends JavaPlugin {
             statement.setDouble(10, velocity.getZ());
             statement.execute();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            getLogger().severe("Error saving player data for: " + player.getName() + ": " + e.getMessage());
         }
     }
 }
